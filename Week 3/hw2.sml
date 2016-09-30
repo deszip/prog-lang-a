@@ -167,15 +167,22 @@ val sum_cards_test_4 = sum_cards [(Clubs,Ace),(Spades,Ace),(Clubs,Ace),(Spades,A
 
 (* (f) Write a function score, which takes a card list (the held-cards) and an int (the goal) and computes the score as described above. Scoring works as follows: Let sum be the sum of the values of the held-cards. If sum is greater than goal, the preliminary score is three times (sum−goal), else the preliminary score is (goal − sum) *)
 fun score (cs, goal) = 
-  case (sum_cards(cs), goal) of
-    (sum, goal) => case sum > goal of
-                     true => (sum - goal) * 3
-                     | false => goal - sum
+  let fun pre_score (cs) =
+    case (sum_cards(cs), goal) of
+      (sum, goal) => case sum > goal of
+                       true => (sum - goal) * 3
+                       | false => goal - sum
+  in
+    case all_same_color(cs) of
+      true => pre_score(cs) div 2
+      | false => pre_score(cs)
+  end
 
 val score_test_1 = score ([(Hearts, Num 2),(Clubs, Num 4)],10) = 4
 val score_test_2 = score ([(Hearts, Num 2),(Clubs, Num 4)],2) = 12
 val score_test_3 = score ([(Hearts, Num 2),(Clubs, Num 4)],6) = 0
-val score_test_4 = score ([(Clubs,Ace),(Spades,Ace),(Clubs,Ace),(Spades,Ace)],42)
+val score_test_4 = score ([(Clubs,Ace),(Spades,Ace),(Clubs,Ace),(Spades,Ace)],42) = 3
+val score_test_5 = score ([],6) = 3
 
 (* (g) Write a function officiate, which “runs a game.” It takes a card list (the card-list) a move list (what the player “does” at each point), and an int (the goal) and returns the score at the end of the game after processing (some or all of) the moves in the move list in order. Use a locally defined recursive helper function that takes several arguments that together represent the current state of the game. As described above:
 • The game starts with the held-cards being the empty list.
@@ -192,16 +199,15 @@ fun officiate (cs, ms, goal) =
                           | Draw => case cs of
                                       [] => held
                                       | c::_ => case sum_cards(c::held) > goal of
-                                                  true => process_moves(remove_card(cs, c, IllegalMove), ms_tail, c::held)
+                                                  true => c::held
                                                   | false => process_moves(remove_card(cs, c, IllegalMove), ms_tail, c::held)
                                                        
                                                        
   in
-    case all_same_color(process_moves(cs, ms, [])) of
-      true => score(process_moves(cs, ms, []), goal) div 2
-      | false => score(process_moves(cs, ms, []), goal) 
+    score(process_moves(cs, ms, []), goal) 
   end
 
 val officiate_test_1 = officiate ([(Hearts, Num 2),(Clubs, Num 4)],[Draw], 15) = 6
-val officiate_test_2 = officiate ([(Clubs,Ace),(Spades,Ace),(Clubs,Ace),(Spades,Ace)], [Draw, Draw, Draw, Draw, Draw], 42) = 3
-val officiate_test_3 = ((officiate([(Clubs,Jack),(Spades,Num(8))], [Draw,Discard(Hearts,Jack)], 42); false) handle IllegalMove => true)
+val officiate_test_2 = officiate ([(Hearts, Num 2),(Clubs, Num 4),(Clubs, Ace)], [Draw, Draw, Draw], 15)
+val officiate_test_3 = officiate ([(Clubs,Ace),(Spades,Ace),(Clubs,Ace),(Spades,Ace)], [Draw, Draw, Draw, Draw, Draw], 42) = 3
+val officiate_test_4 = ((officiate([(Clubs,Jack),(Spades,Num(8))], [Draw,Discard(Hearts,Jack)], 42); false) handle IllegalMove => true)
