@@ -32,10 +32,6 @@ val test12 = officiate ([(Clubs,Ace),(Spades,Ace),(Clubs,Ace),(Spades,Ace)],
                         42)
              = 3
 
-val test13 = ((officiate([(Clubs,Jack),(Spades,Num(8))],
-                         [Draw,Discard(Hearts,Jack)],
-                         42);
-               false) 
-              handle IllegalMove => true)
+val test13 = ((officiate([(Clubs,Jack),(Spades,Num(8))], [Draw,Discard(Hearts,Jack)], 42); false) handle IllegalMove => true)
              
              

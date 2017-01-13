@@ -22,6 +22,7 @@ fun get_substitutions1 (subs, s) =
                      | SOME(ys) => ys @ get_substitutions1(xs, s) 
                                                     
 
+
 fun get_substitutions2 (subs, s) =
   let fun aux(subs, s, acc) =
     case subs of
@@ -52,6 +53,7 @@ datatype color = Red | Black
 datatype move = Discard of card | Draw 
 
 exception IllegalMove
+
 
 fun card_color (suit, rank) = 
   case suit of
@@ -100,10 +102,16 @@ fun sum_cards (cs) =
 
 
 fun score (cs, goal) = 
-  case (sum_cards(cs), goal) of
-    (sum, goal) => case sum > goal of
-                     true => (sum - goal) * 3
-                     | false => goal - sum
+  let fun pre_score (cs) =
+    case (sum_cards(cs), goal) of
+      (sum, goal) => case sum > goal of
+                       true => (sum - goal) * 3
+                       | false => goal - sum
+  in
+    case all_same_color(cs) of
+      true => pre_score(cs) div 2
+      | false => pre_score(cs)
+  end
 
 
 fun officiate (cs, ms, goal) =
@@ -115,10 +123,10 @@ fun officiate (cs, ms, goal) =
                           | Draw => case cs of
                                       [] => held
                                       | c::_ => case sum_cards(c::held) > goal of
-                                                  true => process_moves(remove_card(cs, c, IllegalMove), ms_tail, c::held)
-                                                  | false => process_moves(remove_card(cs, c, IllegalMove), ms_tail, c::held)                
+                                                  true => c::held
+                                                  | false => process_moves(remove_card(cs, c, IllegalMove), ms_tail, c::held)
+                                                       
+                                                       
   in
-    case all_same_color(process_moves(cs, ms, [])) of
-      true => score(process_moves(cs, ms, []), goal) div 2
-      | false => score(process_moves(cs, ms, []), goal) 
+    score(process_moves(cs, ms, []), goal) 
   end
