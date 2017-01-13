@@ -71,6 +71,21 @@ val longest_capitalized =  longest_string1 o only_capitals
 val rev_string = String.implode o List.rev o String.explode
 
 
+(* 7. Write a function first_answer of type (’a -> ’b option) -> ’a list -> ’b (notice the 2 argu- ments are curried). The first argument should be applied to elements of the second argument in order until the first time it returns SOME v for some v and then v is the result of the call to first_answer. If the first argument returns NONE for all list elements, then first_answer should raise the exception NoAnswer. Hints: Sample solution is 5 lines and does nothing fancy. *)
+
+exception NoAnswer
+fun first_answer f = fn s => case s of 
+														   [] => raise NoAnswer
+															 | x::xs => if isSome (f(x))
+															 	  				then x
+																	  			else first_answer f xs
+
+
+(* 8. Write a function all_answers of type (’a -> ’b list option) -> ’a list -> ’b list option (notice the 2 arguments are curried). The first argument should be applied to elements of the second argument. If it returns NONE for any element, then the result for all_answers is NONE. Else the calls to the first argument will have produced SOME lst1, SOME lst2, ... SOME lstn and the result of all_answers is SOME lst where lst is lst1, lst2, ..., lstn appended together (order doesn’t matter). Hints: The sample solution is 8 lines. It uses a helper function with an accumulator and uses @. Note all_answers f [] should evaluate to SOME []. *)
+   
+
+
+
 (* Tests *)
 
 val only_capitals_test_1 = only_capitals ["A","B","C"] = ["A","B","C"]
@@ -99,3 +114,6 @@ val longest_capitalized_test_2 = longest_capitalized ["a","a","a"] = ""
 
 val rev_string_test_1 = rev_string "abc" = "cba"
 val rev_string_test_2 = rev_string "" = ""
+
+val first_answer_test_1 = first_answer (fn x => if x > 3 then SOME x else NONE) [1,2,3,4,5] = 4
+val first_answer_test_2 = (((first_answer (fn x => if x = 6 then SOME x else NONE) [1,2,3,4,5]); false) handle NoAnswer => true)
