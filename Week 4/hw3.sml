@@ -82,8 +82,26 @@ fun first_answer f = fn s => case s of
 
 
 (* 8. Write a function all_answers of type (’a -> ’b list option) -> ’a list -> ’b list option (notice the 2 arguments are curried). The first argument should be applied to elements of the second argument. If it returns NONE for any element, then the result for all_answers is NONE. Else the calls to the first argument will have produced SOME lst1, SOME lst2, ... SOME lstn and the result of all_answers is SOME lst where lst is lst1, lst2, ..., lstn appended together (order doesn’t matter). Hints: The sample solution is 8 lines. It uses a helper function with an accumulator and uses @. Note all_answers f [] should evaluate to SOME []. *)
-   
 
+fun all_answers f xs =
+	let fun fold (f, acc, xs) =
+    case xs of 
+			[] => SOME acc
+			| x::xs' => case f(x) of
+									  NONE => NONE
+										| SOME(y) => fold (f, (y @ acc), xs')
+	in
+		case xs of
+		  [] => SOME []
+			| _ => fold (f, [], xs)
+	end
+
+
+(*
+val res_none = all_answers (fn x => if x = 1 then SOME [x] else NONE) [2,3,4,5,6,7]
+val res_empty = all_answers (fn x => if x = 1 then SOME [x] else NONE) []
+val res_some = all_answers (fn x => if x = 1 then SOME [x] else NONE) [1]
+*)
 
 
 (* Tests *)
@@ -117,3 +135,7 @@ val rev_string_test_2 = rev_string "" = ""
 
 val first_answer_test_1 = first_answer (fn x => if x > 3 then SOME x else NONE) [1,2,3,4,5] = 4
 val first_answer_test_2 = (((first_answer (fn x => if x = 6 then SOME x else NONE) [1,2,3,4,5]); false) handle NoAnswer => true)
+
+val all_answers_test_1 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [] = SOME []
+val all_answers_test_2 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [2,3,4,5,6,7] = NONE
+val all_answers_test_3 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [1,1,1] = SOME [1,1,1]
