@@ -119,6 +119,20 @@ fun g f1 f2 p =
 	  | _                 => 0
     end
 
+(* 9. (This problem uses the pattern datatype but is not really about pattern-matching.) A function g has
+been provided to you.
+(a) Use g to define a function count_wildcards that takes a pattern and returns how many Wildcard patterns it contains.
+(b) Use g to define a function count_wild_and_variable_lengths that takes a pattern and returns the number of Wildcard patterns it contains plus the sum of the string lengths of all the variables in the variable patterns it contains. (Use String.size. We care only about variable names; the constructor names are not relevant.)
+(c) Use g to define a function count_some_var that takes a string and a pattern (as a pair) and returns the number of times the string appears as a variable in the pattern. We care only about variable names; the constructor names are not relevant. *)
+
+
+val count_wildcards = g (List.foldl (fn (x, acc) => acc + 1) 0 ()) (fn x => 0)
+val count_wildcards_test_1 = count_wildcards Wildcard = 1
+
+
+
+
+
 (**** for the challenge problem only ****)
 
 datatype typ = Anything
@@ -126,5 +140,3 @@ datatype typ = Anything
 	     | IntT
 	     | TupleT of typ list
 	     | Datatype of string
-
-(**** you can put all your code here ****)
