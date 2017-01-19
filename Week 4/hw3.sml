@@ -121,16 +121,35 @@ fun g f1 f2 p =
 
 (* 9. (This problem uses the pattern datatype but is not really about pattern-matching.) A function g has
 been provided to you.
-(a) Use g to define a function count_wildcards that takes a pattern and returns how many Wildcard patterns it contains.
-(b) Use g to define a function count_wild_and_variable_lengths that takes a pattern and returns the number of Wildcard patterns it contains plus the sum of the string lengths of all the variables in the variable patterns it contains. (Use String.size. We care only about variable names; the constructor names are not relevant.)
-(c) Use g to define a function count_some_var that takes a string and a pattern (as a pair) and returns the number of times the string appears as a variable in the pattern. We care only about variable names; the constructor names are not relevant. *)
+(a) Use g to define a function count_wildcards that takes a pattern and returns how many Wildcard patterns it contains. *)
 
+fun count_wildcards p = g (fn _ => 1) (fn _ => 0) p
 
-val count_wildcards = g (List.foldl (fn (x, acc) => acc + 1) 0 ()) (fn x => 0)
 val count_wildcards_test_1 = count_wildcards Wildcard = 1
+val count_wildcards_test_2 = count_wildcards (ConstructorP ("M", Wildcard)) = 1
+val count_wildcards_test_3 = count_wildcards (TupleP [Wildcard, UnitP, Wildcard]) = 2
 
 
+(* (b) Use g to define a function count_wild_and_variable_lengths that takes a pattern and returns the number of Wildcard patterns it contains plus the sum of the string lengths of all the variables in the variable patterns it contains. (Use String.size. We care only about variable names; the constructor names are not relevant.) *)
 
+fun count_wild_and_variable_lengths p = g (fn _ => 1) (fn x => String.size(x)) p
+
+val count_wild_and_variable_lengths_test_1 = count_wild_and_variable_lengths (Variable("a")) = 1
+val count_wild_and_variable_lengths_test_2 = count_wild_and_variable_lengths UnitP = 0
+val count_wild_and_variable_lengths_test_3 = count_wild_and_variable_lengths Wildcard = 1
+val count_wild_and_variable_lengths_test_4 = count_wild_and_variable_lengths (Variable "foo") = 3
+val count_wild_and_variable_lengths_test_5 = count_wild_and_variable_lengths (ConstructorP ("M", Wildcard)) = 1
+val count_wild_and_variable_lengths_test_6 = count_wild_and_variable_lengths (TupleP [Wildcard, Variable "bar", UnitP, Wildcard]) = 5
+
+
+(* (c) Use g to define a function count_some_var that takes a string and a pattern (as a pair) and returns the number of times the string appears as a variable in the pattern. We care only about variable names; the constructor names are not relevant. *)
+
+fun count_some_var (s, p) = g (fn _ => 1) (fn x => if s = x then 1 else 0) p
+
+val count_some_var_test_1 = count_some_var ("x", Variable("x")) = 1
+val count_some_var_test_2 = count_some_var ("foo", UnitP) = 0
+val count_some_var_test_3 = count_some_var ("foo", Wildcard) = 1
+val count_some_var_test_4 = count_some_var ("foo", TupleP [Variable "foo", UnitP, Variable "foo", Variable "bar"]) = 2
 
 
 (**** for the challenge problem only ****)
