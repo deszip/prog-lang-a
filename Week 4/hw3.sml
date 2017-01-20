@@ -152,6 +152,34 @@ val count_some_var_test_3 = count_some_var ("foo", Wildcard) = 1
 val count_some_var_test_4 = count_some_var ("foo", TupleP [Variable "foo", UnitP, Variable "foo", Variable "bar"]) = 2
 
 
+(* 10. Write a function check_pat that takes a pattern and returns true if and only if all the variables appearing in the pattern are distinct from each other (i.e., use di↵erent strings). The constructor names are not relevant. Hints: The sample solution uses two helper functions. The first takes a pattern and returns a list of all the strings it uses for variables. Using foldl with a function that uses @ is useful in one case. The second takes a list of strings and decides if it has repeats. List.exists may be useful. Sample solution is 15 lines. These are hints: We are not requiring foldl and List.exists here, but they make it easier. *)
+
+fun var_values p =
+    case p of
+	  Variable x          => [x]
+	  | TupleP ps         => List.foldl (fn (p, acc) => (var_values p) @ acc) [] ps
+	  | ConstructorP(_,p) => var_values p
+	  | _                 => []
+
+val var_values_test_1 = var_values (TupleP [Variable "foo", UnitP, Variable "foo", Variable "bar"]) = ["bar", "foo", "foo"]
+val var_values_test_2 = var_values UnitP = []
+  
+fun has_repeats xs =
+  case xs of 
+    [] => false
+	| x::xs' => if List.exists (fn y => x = y) xs' then true else has_repeats xs'
+
+val has_repeats_test_1 = has_repeats ["x", "y"] = false
+val has_repeats_test_2 = has_repeats ["x", "x"] = true
+
+fun check_pat p = not ((has_repeats o var_values) p)
+
+val check_pat_test_1 = check_pat (Variable("x")) = true
+val check_pat_test_2 = check_pat Wildcard = true
+val check_pat_test_3 = check_pat (TupleP [Variable "foo", UnitP, Variable "foo", Variable "bar"]) = false
+
+
+
 (**** for the challenge problem only ****)
 
 datatype typ = Anything
